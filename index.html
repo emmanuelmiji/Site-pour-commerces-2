@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Maison Liboké, cuisine congolaise au feu de bois à Gombe, Kinshasa. Menu et réservation en ligne.">
+<title>Maison Liboké</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column restaurant site (hero, menu, booking form) + a separate manager console behind a tab bar */
+:root{
+  --bg:#f6f7f2; --surface:#ffffff; --ink:#18231c; --muted:#5b6a60; --line:#dde3da;
+  --forest:#1f4d36; --forest-ink:#ffffff; --amber:#c97d06; --amber-soft:#fbefd9;
+  --ok:#1f7a45; --ok-soft:#e1f2e7; --warn:#a86400; --warn-soft:#fdf0d7; --bad:#b4372d; --bad-soft:#fbe4e1;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111814; --surface:#18221c; --ink:#eaf0ea; --muted:#9db0a3; --line:#2a3a30;
+  --forest:#2f7a55; --forest-ink:#ffffff; --amber:#f0a531; --amber-soft:#3a2b10;
+  --ok:#5fcf8e; --ok-soft:#173523; --warn:#f0b452; --warn-soft:#3a2b10; --bad:#f08a80; --bad-soft:#3d1c19; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111814; --surface:#18221c; --ink:#eaf0ea; --muted:#9db0a3; --line:#2a3a30;
+  --forest:#2f7a55; --forest-ink:#ffffff; --amber:#f0a531; --amber-soft:#3a2b10;
+  --ok:#5fcf8e; --ok-soft:#173523; --warn:#f0b452; --warn-soft:#3a2b10; --bad:#f08a80; --bad-soft:#3d1c19; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:960px;margin:0 auto;padding-inline:16px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+/* Demo bar */
+.demobar{background:var(--ink);color:var(--bg);font-size:13px}
+.demobar .wrap{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding-block:8px}
+.tabs{display:flex;gap:4px;background:color-mix(in srgb,var(--bg) 14%,transparent);padding:3px;border-radius:999px}
+.tabs button{border:0;background:transparent;color:inherit;padding:6px 14px;border-radius:999px;cursor:pointer;font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--amber);color:#1a1205}
+
+/* Site */
+.hero{background:var(--forest);color:var(--forest-ink);padding-block:48px 40px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-40px;width:260px;height:260px;border-radius:50%;
+  background:repeating-radial-gradient(circle,color-mix(in srgb,var(--amber) 55%,transparent) 0 2px,transparent 2px 14px);opacity:.5}
+.hero .wrap{position:relative;z-index:1;display:grid;gap:16px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;opacity:.85}
+.hero h1{font-size:clamp(2.4rem,7vw,4rem);font-weight:800;letter-spacing:-.02em}
+.hero p{max-width:52ch;margin:0;font-size:1.05rem;opacity:.92}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:12px 18px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-amber{background:var(--amber);color:#1a1205}
+.btn-ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor}
+.facts{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;opacity:.9;margin-top:4px}
+
+section{padding-block:40px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:20px}
+.sec-head h2{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700}
+.sec-head span{color:var(--muted);font-size:14px}
+
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 40px}
+.dish{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding-block:14px;border-bottom:1px solid var(--line)}
+.dish h3{font-family:var(--body);font-size:1.02rem;font-weight:600}
+.dish .price{font-weight:600;font-variant-numeric:tabular-nums;color:var(--amber)}
+.dish p{grid-column:1/-1;margin:0;color:var(--muted);font-size:14px}
+
+.book{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:32px;align-items:start}
+@media (max-width:720px){.book{grid-template-columns:1fr}}
+.book-info p{color:var(--muted);margin:0 0 12px}
+.info-list{display:grid;gap:10px;margin:0;padding:0;list-style:none;font-size:15px}
+.info-list b{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+form.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:460px){.row{grid-template-columns:1fr}}
+label{display:grid;gap:6px;font-size:14px;font-weight:600}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-weight:400}
+textarea{min-height:72px;resize:vertical}
+.err{color:var(--bad);font-size:14px;margin:0}
+.success{background:var(--ok-soft);color:var(--ink);border-radius:16px;padding:22px;display:grid;gap:8px}
+.success h3{font-size:1.4rem;color:var(--ok)}
+.success p{margin:0}
+footer{border-top:1px solid var(--line);padding-block:24px;color:var(--muted);font-size:14px}
+
+/* Admin */
+.admin{padding-block:28px 48px}
+.login{max-width:380px;margin:40px auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:14px}
+.login h2{font-size:1.5rem}
+.login p{margin:0;color:var(--muted);font-size:14px}
+.admin-top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.admin-top h2{font-size:1.7rem}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-family:var(--display);font-size:1.8rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:14px;cursor:pointer;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.list{display:grid;gap:10px}
+.resa{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:6px 16px;align-items:center}
+@media (max-width:560px){.resa{grid-template-columns:70px minmax(0,1fr)}.resa .actions{grid-column:1/-1}}
+.when{text-align:center;border-right:1px solid var(--line);padding-right:12px}
+.when b{display:block;font-family:var(--display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.when span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.who{min-width:0}
+.who h3{font-family:var(--body);font-size:1.02rem;font-weight:600;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.who p{margin:2px 0 0;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.pill{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px}
+.p-wait{background:var(--warn-soft);color:var(--warn)}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-no{background:var(--bad-soft);color:var(--bad)}
+.tag-ex{font-size:11px;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:1px 6px;font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.sm{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 11px;font-size:13px;font-weight:600;cursor:pointer}
+.sm.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.sm.no{color:var(--bad)}
+.empty{text-align:center;color:var(--muted);padding:32px 16px;border:1px dashed var(--line);border-radius:14px}
+.note{font-size:13px;color:var(--muted);margin-top:18px}
+@media (prefers-reduced-motion:no-preference){.resa{animation:in .25s ease}@keyframes in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+
+<div class="demobar">
+  <div class="wrap">
+    <span>Démonstration · les réservations restent sur cet appareil</span>
+    <div class="tabs" role="tablist">
+      <button id="tab-site" role="tab" aria-selected="true">Site client</button>
+      <button id="tab-admin" role="tab" aria-selected="false">Espace gérant</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SITE CLIENT ============ -->
+<main id="view-site">
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Gombe · Kinshasa</span>
+      <h1>Maison Liboké</h1>
+      <p>Cuisine congolaise au feu de bois. Poisson du fleuve en feuilles de bananier, moambe du dimanche et terrasse ombragée sur le boulevard.</p>
+      <div class="hero-actions">
+        <a class="btn btn-amber" href="#reserver">Réserver une table</a>
+        <a class="btn btn-ghost" href="#menu">Voir le menu</a>
+      </div>
+      <div class="facts"><span>Mar – Dim · 11h30 – 23h00</span><span>Terrasse 40 places</span><span>Cash · M-Pesa · Orange Money</span></div>
+    </div>
+  </header>
+
+  <section id="menu">
+    <div class="wrap">
+      <div class="sec-head"><h2>La carte</h2><span>Prix en dollars US · FC acceptés au taux du jour</span></div>
+      <div class="menu">
+        <div class="dish"><h3>Liboké de capitaine</h3><span class="price">18 $</span><p>Capitaine du fleuve, tomate, oignon et piment, cuit en feuilles de bananier.</p></div>
+        <div class="dish"><h3>Moambe de poulet</h3><span class="price">14 $</span><p>Poulet mijoté dans la sauce de noix de palme, servi avec riz ou chikwangue.</p></div>
+        <div class="dish"><h3>Ntaba grillé</h3><span class="price">16 $</span><p>Chèvre grillée au charbon, oignons, piment pili-pili et bananes plantain.</p></div>
+        <div class="dish"><h3>Pondu et makayabu</h3><span class="price">11 $</span><p>Feuilles de manioc pilées, poisson salé, huile de palme.</p></div>
+        <div class="dish"><h3>Mbisi ya kalinga</h3><span class="price">15 $</span><p>Tilapia braisé entier, sauce tomate maison, fufu ou frites de plantain.</p></div>
+        <div class="dish"><h3>Assiette végétarienne</h3><span class="price">9 $</span><p>Ngai-ngai, haricots rouges, plantain mûr frit et riz.</p></div>
+        <div class="dish"><h3>Jus de gingembre maison</h3><span class="price">3 $</span><p>Tangawisi frais, citron vert, servi bien frais.</p></div>
+        <div class="dish"><h3>Primus · Simba · Turbo King</h3><span class="price">3 $</span><p>Bières congolaises en bouteille de 72 cl.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reserver">
+    <div class="wrap book">
+      <div class="book-info">
+        <div class="sec-head"><h2>Réserver une table</h2></div>
+        <p>Réservez en une minute. Le restaurant vous confirme par WhatsApp.</p>
+        <ul class="info-list">
+          <li><b>Adresse</b>Boulevard du 30 Juin, Gombe, Kinshasa</li>
+          <li><b>WhatsApp</b>+243 81 000 0000</li>
+          <li><b>Groupes</b>Plus de 12 personnes : appelez-nous directement</li>
+        </ul>
+      </div>
+      <div id="book-box">
+        <form class="card" id="book-form" novalidate>
+          <div class="row">
+            <label for="f-name">Nom complet<input id="f-name" autocomplete="name" placeholder="Ex. Grâce Mbuyi"></label>
+            <label for="f-phone">Téléphone / WhatsApp<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+243 …"></label>
+          </div>
+          <div class="row">
+            <label for="f-date">Date<input id="f-date" type="date"></label>
+            <label for="f-time">Heure<select id="f-time"></select></label>
+          </div>
+          <label for="f-people">Nombre de personnes<select id="f-people"></select></label>
+          <label for="f-note">Demande particulière (facultatif)<textarea id="f-note" placeholder="Anniversaire, terrasse, chaise bébé…"></textarea></label>
+          <p class="err" id="f-err" hidden></p>
+          <button class="btn btn-amber" type="submit">Envoyer la réservation</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer><div class="wrap">Maison Liboké · Restaurant fictif créé pour la démonstration</div></footer>
+</main>
+
+<!-- ============ ESPACE GÉRANT ============ -->
+<main id="view-admin" hidden>
+  <div class="wrap admin">
+    <form class="login" id="login" novalidate>
+      <h2>Espace gérant</h2>
+      <p>Accès réservé au personnel. Code de la démo : <b>1234</b></p>
+      <label for="pin">Code d'accès<input id="pin" type="password" inputmode="numeric" autocomplete="off"></label>
+      <p class="err" id="pin-err" hidden>Code incorrect. Réessayez.</p>
+      <button class="btn btn-amber" type="submit">Entrer</button>
+    </form>
+
+    <div id="dash" hidden>
+      <div class="admin-top">
+        <h2>Réservations</h2>
+        <button class="sm" id="logout" type="button">Se déconnecter</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="s-today">0</b><span>aujourd'hui</span></div>
+        <div class="stat"><b id="s-wait">0</b><span>à confirmer</span></div>
+        <div class="stat"><b id="s-ok">0</b><span>confirmées</span></div>
+        <div class="stat"><b id="s-people">0</b><span>couverts à venir</span></div>
+      </div>
+      <div class="filters" id="filters">
+        <button class="chip" data-f="upcoming" aria-pressed="true">À venir</button>
+        <button class="chip" data-f="today" aria-pressed="false">Aujourd'hui</button>
+        <button class="chip" data-f="wait" aria-pressed="false">À confirmer</button>
+        <button class="chip" data-f="all" aria-pressed="false">Toutes</button>
+      </div>
+      <div class="list" id="list"></div>
+      <p class="note">Dans la version livrée au client, les réservations arrivent en direct depuis le site et le gérant reçoit une notification.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  const KEY="liboke-resas-v1", AUTH="liboke-auth";
+  const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+  const pad=n=>String(n).padStart(2,"0");
+  const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+  const today=iso(new Date());
+  const $=id=>document.getElementById(id);
+
+  function seed(){return[
+    {id:"ex1",name:"Patrick Kabongo",phone:"+243 81 234 5678",date:today,time:"12:30",people:4,note:"Table en terrasse si possible",status:"ok",ex:true},
+    {id:"ex2",name:"Sarah Ilunga",phone:"+243 99 876 5432",date:today,time:"19:30",people:2,note:"Anniversaire de mariage",status:"wait",ex:true},
+    {id:"ex3",name:"Famille Lukusa",phone:"+243 82 555 1200",date:addDays(1),time:"13:00",people:8,note:"",status:"wait",ex:true},
+    {id:"ex4",name:"Jean-Marc Tshibangu",phone:"+243 97 111 2233",date:addDays(2),time:"20:00",people:3,note:"Une chaise bébé",status:"ok",ex:true}
+  ]}
+  let resas;
+  try{resas=JSON.parse(store.get(KEY))}catch(e){resas=null}
+  if(!Array.isArray(resas))resas=seed();
+  const save=()=>store.set(KEY,JSON.stringify(resas));
+
+  /* Tabs */
+  function show(v){
+    $("view-site").hidden=v!=="site";$("view-admin").hidden=v!=="admin";
+    $("tab-site").setAttribute("aria-selected",v==="site");$("tab-admin").setAttribute("aria-selected",v==="admin");
+    if(v==="admin")renderAdmin();window.scrollTo(0,0);
+  }
+  $("tab-site").onclick=()=>show("site");$("tab-admin").onclick=()=>show("admin");
+
+  /* Booking form */
+  const times=[];for(let h=11;h<=22;h++){for(const m of[0,30]){if(h===11&&m===0)continue;if(h===22&&m===30)continue;times.push(pad(h)+":"+pad(m))}}
+  $("f-time").innerHTML=times.map(t=>`<option${t==="19:30"?" selected":""}>${t}</option>`).join("");
+  $("f-people").innerHTML=Array.from({length:12},(_,i)=>`<option value="${i+1}"${i===1?" selected":""}>${i+1} personne${i?"s":""}</option>`).join("");
+  $("f-date").min=today;$("f-date").value=addDays(1);
+
+  $("book-form").addEventListener("submit",e=>{
+    e.preventDefault();
+    const name=$("f-name").value.trim(),phone=$("f-phone").value.trim(),date=$("f-date").value;
+    const err=$("f-err");
+    if(name.length<2){err.textContent="Indiquez votre nom.";err.hidden=false;$("f-name").focus();return}
+    if(phone.replace(/\D/g,"").length<9){err.textContent="Indiquez un numéro de téléphone valide.";err.hidden=false;$("f-phone").focus();return}
+    if(!date||date<today){err.textContent="Choisissez une date à partir d'aujourd'hui.";err.hidden=false;$("f-date").focus();return}
+    err.hidden=true;
+    const r={id:"r"+Date.now(),name,phone,date,time:$("f-time").value,people:+$("f-people").value,note:$("f-note").value.trim(),status:"wait"};
+    resas.push(r);save();
+    const box=$("book-box");
+    box.innerHTML=`<div class="success" role="status"><h3>Réservation envoyée</h3><p></p><p>Le restaurant va vous confirmer par WhatsApp au <b></b>.</p><div><button class="btn btn-ghost" id="again" type="button">Faire une autre réservation</button></div></div>`;
+    box.querySelector("p").textContent=`${r.people} personne${r.people>1?"s":""} le ${fmtLong(r.date)} à ${r.time}, au nom de ${r.name}.`;
+    box.querySelector("b").textContent=r.phone;
+    $("again").onclick=()=>location.reload();
+  });
+
+  /* Admin */
+  const MONTHS=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  function fmtLong(s){const d=new Date(s+"T12:00");return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}
+  let filter="upcoming",pendingDelete=null,authed=store.get(AUTH)==="1";
+
+  $("login").addEventListener("submit",e=>{e.preventDefault();
+    if($("pin").value==="1234"){authed=true;store.set(AUTH,"1");$("pin").value="";$("pin-err").hidden=true;renderAdmin()}
+    else{$("pin-err").hidden=false}});
+  $("logout").onclick=()=>{authed=false;store.del(AUTH);renderAdmin()};
+  $("filters").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;filter=b.dataset.f;
+    document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b));renderList()});
+
+  function renderAdmin(){
+    const ok=authed;
+    $("login").hidden=ok;$("dash").hidden=!ok;
+    if(ok)renderList();
+  }
+
+  function renderList(){
+    const up=resas.filter(r=>r.date>=today&&r.status!=="no");
+    $("s-today").textContent=resas.filter(r=>r.date===today&&r.status!=="no").length;
+    $("s-wait").textContent=up.filter(r=>r.status==="wait").length;
+    $("s-ok").textContent=up.filter(r=>r.status==="ok").length;
+    $("s-people").textContent=up.reduce((a,r)=>a+r.people,0);
+    let rows=resas.slice();
+    if(filter==="upcoming")rows=rows.filter(r=>r.date>=today);
+    if(filter==="today")rows=rows.filter(r=>r.date===today);
+    if(filter==="wait")rows=rows.filter(r=>r.status==="wait");
+    rows.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    const list=$("list");list.innerHTML="";
+    if(!rows.length){list.innerHTML=`<div class="empty">Aucune réservation ici pour l'instant. Les nouvelles demandes du site apparaissent dans « À confirmer ».</div>`;return}
+    for(const r of rows){
+      const d=new Date(r.date+"T12:00");
+      const el=document.createElement("div");el.className="resa";
+      const pill={wait:["p-wait","À confirmer"],ok:["p-ok","Confirmée"],no:["p-no","Annulée"]}[r.status];
+      el.innerHTML=`<div class="when"><span>${r.date===today?"Auj.":d.getDate()+" "+MONTHS[d.getMonth()]}</span><b>${r.time}</b></div>
+        <div class="who"><h3><span class="n"></span><span class="pill ${pill[0]}">${pill[1]}</span>${r.ex?'<span class="tag-ex">exemple</span>':""}</h3>
+        <p class="meta"></p><p class="nt"></p></div><div class="actions"></div>`;
+      el.querySelector(".n").textContent=r.name;
+      el.querySelector(".meta").textContent=`${r.people} pers. · ${r.phone}`;
+      const nt=el.querySelector(".nt");if(r.note)nt.textContent="« "+r.note+" »";else nt.remove();
+      const act=el.querySelector(".actions");
+      const btn=(label,cls,fn)=>{const b=document.createElement("button");b.type="button";b.className="sm "+(cls||"");b.textContent=label;b.onclick=fn;act.appendChild(b)};
+      if(pendingDelete===r.id){
+        btn("Confirmer la suppression","no",()=>{resas=resas.filter(x=>x.id!==r.id);pendingDelete=null;save();renderList()});
+        btn("Garder","",()=>{pendingDelete=null;renderList()});
+      }else{
+        if(r.status!=="ok")btn("Confirmer","ok",()=>setStatus(r,"ok"));
+        if(r.status!=="no")btn("Annuler","no",()=>setStatus(r,"no"));
+        const wa=document.createElement("a");wa.className="sm";wa.textContent="WhatsApp";wa.target="_blank";wa.rel="noopener";
+        wa.href="https://wa.me/"+r.phone.replace(/\D/g,"")+"?text="+encodeURIComponent(`Bonjour ${r.name}, Maison Liboké confirme votre table pour ${r.people} le ${fmtLong(r.date)} à ${r.time}. À bientôt !`);
+        wa.style.textDecoration="none";act.appendChild(wa);
+        btn("Supprimer","",()=>{pendingDelete=r.id;renderList()});
+      }
+      list.appendChild(el);
+    }
+  }
+  function setStatus(r,s){r.status=s;save();renderList()}
+  if(location.hash==="#gerant")show("admin");
+})();
+</script>
+</body>
+</html>
